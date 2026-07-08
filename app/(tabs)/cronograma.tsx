@@ -7,13 +7,12 @@ import { auth, db } from '../../firebase';
 export default function CronogramaScreen() {
   const [eventos, setEventos] = useState<any[]>([]);
   const [selectedTab, setSelectedTab] = useState('Todos');
-  const [miNombre, setMiNombre] = useState(''); // Para saber cuáles reservas son "Mías"
+  const [miNombre, setMiNombre] = useState(''); 
 
   const diasSemanaFull = ['Domingo', 'Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado'];
   const tabs = ['Todos', 'Lunes', 'Martes', 'Mié', 'Jue', 'Vie', 'Sáb'];
 
   useEffect(() => {
-    // 1. Obtener mi nombre para etiquetar mis reservas
     const correo = auth.currentUser?.email;
     if (correo) {
       onValue(ref(db, 'laboratorio/usuarios'), (snap) => {
@@ -23,7 +22,6 @@ export default function CronogramaScreen() {
       });
     }
 
-    // 2. Cargar Reservas y Docentes
     const resRef = ref(db, 'reservas');
     const docentesRef = ref(db, 'docentes');
 
@@ -107,7 +105,6 @@ export default function CronogramaScreen() {
     };
   }, []);
 
-  // Función para mapear las pestañas abreviadas al nombre completo del día
   const obtenerDiasAMostrar = () => {
     if (selectedTab === 'Todos') return ['Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado'];
     if (selectedTab === 'Mié') return ['Miércoles'];
@@ -125,7 +122,6 @@ export default function CronogramaScreen() {
         <Text style={styles.mainTitle}>Cronograma Semanal</Text>
         <Text style={styles.subtitle}>Horarios de reserva consolidados de la facultad.</Text>
         
-        {/* TABS DE DÍAS */}
         <View style={styles.tabsContainer}>
           <ScrollView horizontal showsHorizontalScrollIndicator={false}>
             {tabs.map((tab) => {
@@ -151,7 +147,6 @@ export default function CronogramaScreen() {
         {diasAMostrar.map(dia => {
           const eventosDelDia = eventos.filter(e => e.diaSemana === dia);
           
-          // Si estamos en un día específico y está vacío, mostramos el mensaje de vacío
           if (eventosDelDia.length === 0 && selectedTab !== 'Todos') {
             return (
               <View key={dia} style={styles.diaContainer}>
@@ -167,7 +162,6 @@ export default function CronogramaScreen() {
             );
           }
 
-          // Si estamos en "Todos" y el día está vacío, simplemente lo saltamos para que no haga bulto
           if (eventosDelDia.length === 0 && selectedTab === 'Todos') return null;
           
           return (
@@ -178,18 +172,18 @@ export default function CronogramaScreen() {
               </View>
               
               {eventosDelDia.map((e, i) => {
-                const esMio = e.propietario === miNombre;
+                const esMio = Boolean(e.propietario === miNombre);
                 const colorBorde = esMio ? '#06b6d4' : (e.tipo === 'reserva' ? '#06b6d4' : '#f59e0b');
 
                 return (
                   <View key={i} style={[styles.card, { borderLeftColor: colorBorde }]}>
                     <View style={styles.cardHeader}>
                       <Text style={styles.nombre} numberOfLines={1}>{e.titulo}</Text>
-                      {esMio && (
+                      {esMio ? (
                         <View style={styles.miaPill}>
                           <Text style={styles.miaText}>Mía</Text>
                         </View>
-                      )}
+                      ) : null}
                     </View>
                     
                     <View style={styles.infoRow}>
@@ -209,13 +203,12 @@ export default function CronogramaScreen() {
             </View>
           );
         })}
-        <View style={{ height: 40 }} /> {/* Espacio extra al final */}
+        <View style={{ height: 40 }} />
       </ScrollView>
     </SafeAreaView>
   );
 }
 
-// ESTILOS PREMIUM MODO OSCURO
 const styles = StyleSheet.create({
   safeArea: {
     flex: 1,
