@@ -1,7 +1,8 @@
+import { Ionicons } from '@expo/vector-icons'; // Importamos los iconos
 import { router } from 'expo-router';
-import { signInWithEmailAndPassword, signOut } from 'firebase/auth'; // Importamos signOut
+import { signInWithEmailAndPassword, signOut } from 'firebase/auth';
 import React, { useState } from 'react';
-import { ActivityIndicator, Alert, KeyboardAvoidingView, Platform, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
+import { ActivityIndicator, Alert, KeyboardAvoidingView, Platform, SafeAreaView, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
 
 import { auth } from '../firebase';
 
@@ -10,6 +11,7 @@ export default function LoginScreen() {
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
 
+  // TU LÓGICA INTACTA DE FIREBASE
   const handleLogin = async () => {
     if (!email || !password) {
       Alert.alert('Error', 'Por favor llena todos los campos');
@@ -36,7 +38,7 @@ export default function LoginScreen() {
           'Correo no verificado 📧', 
           'Por favor, revisa tu bandeja de entrada (y la carpeta de spam) y haz clic en el enlace para confirmar tu cuenta.'
         );
-        await signOut(auth); // Cerramos la sesión inmediatamente para que no se quede "logueado a medias"
+        await signOut(auth);
         setLoading(false);
         return;
       }
@@ -45,7 +47,6 @@ export default function LoginScreen() {
       router.replace('/home');
       
     } catch (error: any) {
-      // Manejo de errores más específico
       if (error.code === 'auth/invalid-credential' || error.code === 'auth/user-not-found' || error.code === 'auth/wrong-password') {
         Alert.alert('Error', 'Correo o contraseña incorrectos');
       } else {
@@ -56,107 +57,184 @@ export default function LoginScreen() {
     }
   };
 
+  // NUEVO DISEÑO PREMIUM
   return (
-    <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : 'height'} style={styles.container}>
-      <View style={styles.innerContainer}>
+    <SafeAreaView style={styles.container}>
+      <KeyboardAvoidingView 
+        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+        style={styles.keyboardView}
+      >
         
-        <View style={styles.iconContainer}>
-          <Text style={styles.iconText}>🛡️</Text>
+        {/* CABECERA Y LOGO */}
+        <View style={styles.headerContainer}>
+          <View style={styles.logoWrapper}>
+            <Ionicons name="shield-checkmark" size={45} color="#fff" />
+          </View>
+          <Text style={styles.title}>LabAccess</Text>
+          <Text style={styles.subtitle}>PORTAL DEL DOCENTE</Text>
+          <Text style={styles.description}>
+            Inicie sesión con sus credenciales institucionales seguras.
+          </Text>
         </View>
 
-        <Text style={styles.title}>LabAccess</Text>
-        <Text style={styles.subtitle}>Portal del Docente</Text>
+        {/* FORMULARIO */}
+        <View style={styles.formContainer}>
+          
+          <Text style={styles.label}>CORREO INSTITUCIONAL</Text>
+          <View style={styles.inputContainer}>
+            <Ionicons name="mail-outline" size={20} color="#64748b" style={styles.icon} />
+            <TextInput
+              style={styles.input}
+              placeholder="Ej. edins19n@gmail.com"
+              placeholderTextColor="#475569"
+              value={email} // Conectado a tu estado
+              onChangeText={setEmail} // Conectado a tu estado
+              keyboardType="email-address"
+              autoCapitalize="none"
+            />
+          </View>
 
-        <View style={styles.form}>
-          <TextInput 
-            style={styles.input} 
-            placeholder="Correo electrónico" 
-            placeholderTextColor="#475569" 
-            value={email} 
-            onChangeText={setEmail} 
-            autoCapitalize="none" 
-            keyboardType="email-address"
-          />
-
-          <TextInput 
-            style={styles.input} 
-            placeholder="Contraseña" 
-            placeholderTextColor="#475569" 
-            value={password} 
-            onChangeText={setPassword} 
-            secureTextEntry 
-            autoCapitalize="none"
-          />
+          <Text style={styles.label}>CONTRASEÑA</Text>
+          <View style={styles.inputContainer}>
+            <Ionicons name="lock-closed-outline" size={20} color="#64748b" style={styles.icon} />
+            <TextInput
+              style={styles.input}
+              placeholder="••••••••"
+              placeholderTextColor="#475569"
+              value={password} // Conectado a tu estado
+              onChangeText={setPassword} // Conectado a tu estado
+              secureTextEntry
+            />
+          </View>
 
           <TouchableOpacity style={styles.button} onPress={handleLogin} disabled={loading}>
             {loading ? (
               <ActivityIndicator color="#ffffff" />
             ) : (
-              <Text style={styles.buttonText}>Ingresar</Text>
+              <Text style={styles.buttonText}>Ingresar al Portal</Text>
             )}
+          </TouchableOpacity>
+
+        </View>
+
+        {/* FOOTER */}
+        <View style={styles.footer}>
+          <Text style={styles.footerText}>¿Tu cuenta es nueva? </Text>
+          {/* Conectado a tu ruta de registro */}
+          <TouchableOpacity onPress={() => router.push('/registro')}>
+            <Text style={styles.footerLink}>Actívala aquí</Text>
           </TouchableOpacity>
         </View>
 
-        <View style={styles.footerContainer}>
-          <Text style={styles.footerText}>¿Tu cuenta es nueva? </Text>
-          <TouchableOpacity onPress={() => router.push('/registro')}>
-            <Text style={styles.registerLink}>Actívala aquí</Text>
-          </TouchableOpacity>
-        </View>
-        
-      </View>
-    </KeyboardAvoidingView>
+      </KeyboardAvoidingView>
+    </SafeAreaView>
   );
 }
 
+// ESTILOS PREMIUM
 const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: '#090d16',
+  },
+  keyboardView: {
+    flex: 1,
     justifyContent: 'center',
-    alignItems: 'center',
+    paddingHorizontal: 30,
   },
-  innerContainer: {
-    width: '100%',
-    maxWidth: 360,
+  headerContainer: {
     alignItems: 'center',
-    padding: 24,
+    marginBottom: 40,
   },
-  iconContainer: {
+  logoWrapper: {
+    backgroundColor: '#10b981',
     width: 80,
     height: 80,
-    backgroundColor: '#10b981',
-    borderRadius: 22,
+    borderRadius: 20,
     justifyContent: 'center',
     alignItems: 'center',
-    marginBottom: 28,
+    marginBottom: 20,
+    shadowColor: '#10b981',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.3,
+    shadowRadius: 10,
+    elevation: 8,
   },
-  iconText: { fontSize: 40 },
-  title: { fontSize: 36, fontWeight: 'bold', color: '#ffffff', marginBottom: 6 },
-  subtitle: { fontSize: 15, color: '#94a3b8', marginBottom: 44 },
-  form: { width: '100%', gap: 14 },
-  input: {
-    width: '100%',
-    backgroundColor: '#0f172a',
-    borderWidth: 1,
-    borderColor: '#1e293b',
-    borderRadius: 14,
-    paddingHorizontal: 16,
-    paddingVertical: 14,
+  title: {
+    fontSize: 32,
+    fontWeight: 'bold',
     color: '#ffffff',
-    fontSize: 15,
+    marginBottom: 5,
+  },
+  subtitle: {
+    fontSize: 12,
+    color: '#94a3b8',
+    fontWeight: 'bold',
+    letterSpacing: 2,
+    marginBottom: 15,
+  },
+  description: {
+    color: '#64748b',
+    textAlign: 'center',
+    fontSize: 14,
+    paddingHorizontal: 20,
+  },
+  formContainer: {
+    width: '100%',
+  },
+  label: {
+    color: '#94a3b8',
+    fontSize: 12,
+    fontWeight: 'bold',
+    marginBottom: 8,
+    marginLeft: 4,
+    letterSpacing: 1,
+  },
+  inputContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#1e293b',
+    borderRadius: 12,
+    marginBottom: 20,
+    paddingHorizontal: 15,
+    height: 55,
+    borderWidth: 1,
+    borderColor: '#334155',
+  },
+  icon: {
+    marginRight: 10,
+  },
+  input: {
+    flex: 1,
+    color: '#ffffff',
+    fontSize: 16,
+    height: '100%',
   },
   button: {
-    width: '100%',
     backgroundColor: '#10b981',
-    borderRadius: 14,
-    paddingVertical: 14,
-    alignItems: 'center',
+    borderRadius: 12,
+    height: 55,
     justifyContent: 'center',
+    alignItems: 'center',
     marginTop: 10,
   },
-  buttonText: { color: '#ffffff', fontSize: 16, fontWeight: 'bold' },
-  footerContainer: { flexDirection: 'row', marginTop: 24 },
-  footerText: { color: '#94a3b8' },
-  registerLink: { color: '#10b981', fontWeight: 'bold' }
+  buttonText: {
+    color: '#ffffff',
+    fontSize: 16,
+    fontWeight: 'bold',
+  },
+  footer: {
+    flexDirection: 'row',
+    justifyContent: 'center',
+    marginTop: 40,
+  },
+  footerText: {
+    color: '#64748b',
+    fontSize: 14,
+  },
+  footerLink: {
+    color: '#10b981',
+    fontSize: 14,
+    fontWeight: 'bold',
+  },
 });
