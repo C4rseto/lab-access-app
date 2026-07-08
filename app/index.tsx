@@ -85,7 +85,7 @@ export default function LoginScreen() {
             <Ionicons name="mail-outline" size={20} color="#64748b" style={styles.icon} />
             <TextInput
               style={styles.input}
-              placeholder="Ej. edins19n@gmail.com"
+              placeholder="Ej. usuario@gmail.com"
               placeholderTextColor="#475569"
               value={email} // Conectado a tu estado
               onChangeText={setEmail} // Conectado a tu estado
