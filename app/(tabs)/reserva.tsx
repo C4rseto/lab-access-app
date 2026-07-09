@@ -34,9 +34,10 @@ export default function ReservaScreen() {
   const onChangePicker = (event: any, selectedDate?: Date) => {
     setShowPicker(Platform.OS === 'ios');
     if (selectedDate && activeField) {
+      // CAMBIO AQUÍ: Formato de 12 horas con AM/PM
       const valor = mode === 'date' 
         ? selectedDate.toLocaleDateString('es-ES') 
-        : selectedDate.toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' });
+        : selectedDate.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: true });
       setForm({ ...form, [activeField]: valor });
     }
   };
@@ -158,9 +159,9 @@ export default function ReservaScreen() {
           <DateTimePicker 
             value={new Date()} 
             mode={mode} 
-            is24Hour={true} 
+            is24Hour={false} // CAMBIO AQUÍ: Ahora usa formato 12 horas
             onChange={onChangePicker} 
-            themeVariant="dark" // Intenta forzar el modo oscuro en iOS
+            themeVariant="dark" 
           />
         )}
       </ScrollView>
